@@ -36,12 +36,37 @@ class User(BaseModel):
 
 app = FastAPI()
 
+# Usando isso o svelte conseguirá acessar o backend
+origins = [
+    "http://localhost",
+    "http://localhost:5173",
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Chamadas HTTPs
 @app.get("/users/", status_code=200)
 def read_users():
-    return userController.read_users()
+    user = userController.read_users()
+    users= []
+    for i in user:
+        users.append({
+                "id": i[0], 
+                "name": i[1], 
+                "email": i[2], 
+                "password": i[3]
+            },
+        )   
+    return users
 
 @app.get("/users/search/{email}")
 def find_user_by_email(email:str):
+    # print(email)
     user = userController.find_user_by_email(email)
     if user:
         return user
@@ -79,5 +104,5 @@ async def home():
     return {"msg": "Hello"}
 
 # rodar o fastapi:
-# uvicorn main:app --reload
+# uvicorn src.main:app --reload
 

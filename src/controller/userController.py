@@ -1,5 +1,13 @@
 import sqlite3
 
+def read_users():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM users")
+    users = c.fetchall()
+    conn.close()
+    return users
+
 def find_user_by_email(email:str):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
@@ -14,14 +22,7 @@ def create_user(name, email, password):
     c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
     conn.commit()
     conn.close()
-
-def read_users():
-    conn = sqlite3.connect('users.db')
-    c = conn.cursor()
-    c.execute("SELECT * FROM users")
-    users = c.fetchall()
-    conn.close()
-    return users
+    return("Usuário criado com sucesso")
 
 def update_user(id, name, email):
     conn = sqlite3.connect('users.db')
