@@ -52,7 +52,7 @@ app.add_middleware(
 )
 
 # Chamadas HTTPs
-@app.get("/users/", status_code=200)
+@app.get("/users/list", status_code=200)
 def read_users():
     user = userController.read_users()
     users= []
@@ -67,17 +67,17 @@ def read_users():
     return users
 
 
-@app.get("/users/search/{email}")
-def find_user_by_email(email:str):
-    # print(email)
-    user = userController.find_user_by_email(email)
-    if user:
-        return user
-    else:
-        raise HTTPException(status_code=404, detail="User not found")
+# @app.get("/users/search/{email}")
+# def find_user_by_email(email:str):
+#     # print(email)
+#     user = userController.find_user_by_email(email)
+#     if user:
+#         return user
+#     else:
+#         raise HTTPException(status_code=404, detail="User not found")
 
 
-@app.post("/users/", status_code=201)
+@app.post("/user/create", status_code=201)
 async def create_user(request: Request):
     data = await request.json()
     userCreate = userController.create_user({
@@ -91,7 +91,7 @@ async def create_user(request: Request):
         raise HTTPException(status_code=400, detail="User not created")
 
 
-@app.put("/users/")
+@app.put("/user/update")
 async def update_user(request: Request):
     data = await request.json()
     resultado = userController.update_user({
