@@ -69,38 +69,25 @@ def update_user(updateUser):
 def delete_user(identifier):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    identifier = str(identifier)
-    if identifier.isdigit():
+    try:
         c.execute("SELECT * FROM users WHERE id = ?", (identifier,))
         idUser, name, email, password = c.fetchone()
+        print(identifier)
         user = {
+            "code": 200,
             "id": idUser,
             "name": name,
             "email": email,
+            "message": "Usuário deletado com sucesso"
         }
-        c.execute("DELETE FROM users WHERE id = ?", (identifier,))
-        conn.commit()
-        conn.close()
-        return user
-    else: 
-        if not identifier.isdigit():
-            c.execute("SELECT * FROM users WHERE email = ?", (identifier,))
-            idUser, name, email, password = c.fetchone()
-            user = {
-                "id": idUser,
-                "name": name,
-                "email": email,
-            }
-            c.execute("DELETE FROM users WHERE email = ?", (identifier,))
+        if identifier != None and user != None:
+            c.execute("DELETE FROM users WHERE id = ?", (identifier,))
             conn.commit()
             conn.close()
             return user
         else:
-            if identifier == None:
-                conn.commit()
-                conn.close()
-                return("Não há usuário para deletar")
-            else: 
-                conn.commit()
-                conn.close()
-                return("Identificador inválido")
+            conn.commit()
+            conn.close()
+            return("Não há usuário para deletar")
+    except:
+        return {"code": 404, "message": "Usuário não encontrado"}

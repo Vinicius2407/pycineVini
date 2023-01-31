@@ -1,3 +1,4 @@
+from typing import Union
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import (
      CORSMiddleware
@@ -101,11 +102,10 @@ async def update_user(request: Request):
     return {"message": resultado}
 
 
-@app.delete("/users/delete/")
-async def delete_user(request: Request):
-    data = await request.json()
-    identifier = data.get("id", None) if data.get("id", None) else data.get("email", None)
-    return {"message": "O usuario {} foi deletado com sucesso".format(userController.delete_user(identifier))}
+@app.delete("/users/delete/{identifier}")
+async def delete_user(identifier: int):
+    user = userController.delete_user(identifier)    
+    return user
 
 
 @app.get("/")  # HTTP GET
