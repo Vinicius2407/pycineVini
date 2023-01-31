@@ -16,6 +16,7 @@ import sys
 sys.path.append("src\controller")
 import userController
 
+
 #TODO: testar para ver se o banco não esta sendo apagado toda vez que inicia o servidor
 models.database.Base.metadata.create_all(bind=database.engine)
 
@@ -64,6 +65,7 @@ def read_users():
         )   
     return users
 
+
 @app.get("/users/search/{email}")
 def find_user_by_email(email:str):
     # print(email)
@@ -73,30 +75,37 @@ def find_user_by_email(email:str):
     else:
         raise HTTPException(status_code=404, detail="User not found")
 
+
 @app.post("/users/", status_code=201)
 async def create_user(request: Request):
     data = await request.json()
-    name = data["name"]
-    email = data["email"]
-    password = data["password"]
-    userController.create_user(name, email, password)
-    return {"name": name, "email": email, "password": password}
+    userCreate = userController.create_user({
+        "name": data["name"],
+        "email": data["email"],
+        "password": data["password"],
+        });
+    if userCreate:
+        return userCreate
+    else:
+        raise HTTPException(status_code=400, detail="User not created")
+
 
 @app.put("/users/")
 async def update_user(request: Request):
     data = await request.json()
-    user_id = data["id"]
-    name = data["name"]
-    email = data["email"]
-    resultado = userController.update_user(user_id, name, email)
+    resultado = userController.update_user({
+        "id": data["id"],
+        "name": data["name"],
+        "email": data["email"],
+        })
     return {"message": resultado}
+
 
 @app.delete("/users/delete/")
 async def delete_user(request: Request):
     data = await request.json()
-    email = data["email"]
-    userController.delete_user(email)
-    return {"message": "User deleted"}
+    identifier = data.get("id", None) if data.get("id", None) else data.get("email", None)
+    return {"message": "O usuario {} foi deletado com sucesso".format(userController.delete_user(identifier))}
 
 
 @app.get("/")  # HTTP GET

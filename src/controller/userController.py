@@ -12,37 +12,52 @@ def find_user_by_email(email:str):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
     c.execute("SELECT * FROM users WHERE email = ?", (email,))
-    user = c.fetchone()
+    idUser, name, email, password = c.fetchone()
+    user = {
+        "id": idUser,
+        "name": name,
+        "email": email,
+    }
     conn.close()
     return user
 
-def create_user(name, email, password):
+def create_user(userCreate):
+    name, email, password = userCreate.values()
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
     c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, password))
+    c.execute("SELECT * FROM users WHERE email = ?", (email,))
+    idUser, name, email, password = c.fetchone()
+    user = {
+        "id": idUser,
+        "name": name,
+        "email": email,
+    }
     conn.commit()
     conn.close()
-    return("Usuário criado com sucesso")
+    return user
 
-def update_user(id, name, email):
+def update_user(updateUser):
+    idUser, name, email = updateUser.values()
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("SELECT * FROM users WHERE id = ?", (id,))
+    c.execute("SELECT * FROM users WHERE id = ?", (idUser,))
     user = c.fetchone()
+    
     if user[1] == name and user[2] != email:
-        c.execute("UPDATE users SET email = ? WHERE id = ?", (email, id))
+        c.execute("UPDATE users SET email = ? WHERE id = ?", (email, idUser))
         conn.commit()
         conn.close()
         return("Alterações de email realizadas")
     else: 
         if user[1] != name and user[2] == email:
-            c.execute("UPDATE users SET name = ? WHERE id = ?", (name, id))
+            c.execute("UPDATE users SET name = ? WHERE id = ?", (name, idUser))
             conn.commit()
             conn.close()
             return("Alterações de nome realizadas")
         else:
             if user[1] != name and user[2] != email:
-                c.execute("UPDATE users SET name = ?, email = ? WHERE id = ?", (name, email, id))
+                c.execute("UPDATE users SET name = ?, email = ? WHERE id = ?", (name, email, idUser))
                 conn.commit()
                 conn.close()
                 return("Alterações de nome e email realizadas")
@@ -50,10 +65,42 @@ def update_user(id, name, email):
                 if user[1] == name and user[2] == email:
                     return("Não há alterações")
 
-def delete_user(email):
+
+def delete_user(identifier):
     conn = sqlite3.connect('users.db')
     c = conn.cursor()
-    c.execute("DELETE FROM users WHERE email = ?", (email,))
-    conn.commit()
-    conn.close()
-
+    identifier = str(identifier)
+    if identifier.isdigit():
+        c.execute("SELECT * FROM users WHERE id = ?", (identifier,))
+        idUser, name, email, password = c.fetchone()
+        user = {
+            "id": idUser,
+            "name": name,
+            "email": email,
+        }
+        c.execute("DELETE FROM users WHERE id = ?", (identifier,))
+        conn.commit()
+        conn.close()
+        return user
+    else: 
+        if not identifier.isdigit():
+            c.execute("SELECT * FROM users WHERE email = ?", (identifier,))
+            idUser, name, email, password = c.fetchone()
+            user = {
+                "id": idUser,
+                "name": name,
+                "email": email,
+            }
+            c.execute("DELETE FROM users WHERE email = ?", (identifier,))
+            conn.commit()
+            conn.close()
+            return user
+        else:
+            if identifier == None:
+                conn.commit()
+                conn.close()
+                return("Não há usuário para deletar")
+            else: 
+                conn.commit()
+                conn.close()
+                return("Identificador inválido")
