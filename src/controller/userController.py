@@ -8,18 +8,23 @@ def read_users():
     conn.close()
     return users
 
-# def find_user_by_email(email:str):
-#     conn = sqlite3.connect('users.db')
-#     c = conn.cursor()
-#     c.execute("SELECT * FROM users WHERE email = ?", (email,))
-#     idUser, name, email, password = c.fetchone()
-#     user = {
-#         "id": idUser,
-#         "name": name,
-#         "email": email,
-#     }
-#     conn.close()
-#     return user
+def find_user_by_email(email:str, password:str):
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    print(email, password)
+    try:
+        c.execute("SELECT * FROM users WHERE email = ? AND password = ? ", (email, password,))
+        idUser, nameDoBanco, emailDoBanco, passwordDoBanco = c.fetchone()
+        user = {
+            "id": idUser,
+            "name": nameDoBanco,
+            "email": emailDoBanco,
+        }
+        return user
+    except:
+        return {"code": 404, "message": "Email ou senha incorretos"}
+    finally:
+        conn.close()
 
 def create_user(userCreate):
     name, email, password = userCreate.values()

@@ -29,13 +29,6 @@ def get_db():
     finally:
         db.close()
 
-
-from pydantic import BaseModel
-class User(BaseModel):
-    name: str
-    email: str
-    password: str
-
 app = FastAPI()
 
 # Usando isso o svelte conseguirá acessar o backend
@@ -63,21 +56,22 @@ def read_users():
                 "email": i[2], 
                 "password": i[3]
             },
-        )   
+        )  
+         
     return users
 
 
-# @app.get("/users/search/{email}")
-# def find_user_by_email(email:str):
-#     # print(email)
-#     user = userController.find_user_by_email(email)
-#     if user:
-#         return user
-#     else:
-#         raise HTTPException(status_code=404, detail="User not found")
+@app.get("/users/search/")
+def find_user_by_email(email: str, password: str):
+    print(email, password)
+    user = userController.find_user_by_email(email, password)
+    if user:
+        return user
+    else:
+        raise HTTPException(status_code=400, detail="User not found")
 
 
-@app.post("/user/create", status_code=201)
+@app.post("/user/create")
 async def create_user(request: Request):
     data = await request.json()
     userCreate = userController.create_user({
@@ -91,7 +85,7 @@ async def create_user(request: Request):
         raise HTTPException(status_code=400, detail="User not created")
 
 
-@app.put("/user/update")
+@app.put("/user/update", status_code=200)
 async def update_user(request: Request):
     data = await request.json()
     resultado = userController.update_user({
@@ -102,7 +96,7 @@ async def update_user(request: Request):
     return {"message": resultado}
 
 
-@app.delete("/users/delete/{identifier}")
+@app.delete("/users/delete/{identifier}", status_code=200)
 async def delete_user(identifier: int):
     user = userController.delete_user(identifier)    
     return user
