@@ -60,17 +60,6 @@ def read_users():
          
     return users
 
-
-@app.get("/users/search/")
-def find_user_by_email(email: str, password: str):
-    print(email, password)
-    user = userController.find_user_by_email(email, password)
-    if user:
-        return user
-    else:
-        raise HTTPException(status_code=400, detail="User not found")
-
-
 @app.post("/user/create")
 async def create_user(request: Request):
     data = await request.json()
@@ -96,9 +85,9 @@ async def update_user(request: Request):
     return {"message": resultado}
 
 
-@app.delete("/users/delete/{identifier}", status_code=200)
-async def delete_user(identifier: int):
-    user = userController.delete_user(identifier)    
+@app.delete("/users/delete/{id}", status_code=200)
+async def delete_user(id: str):
+    user = userController.delete_user(id)    
     return user
 
 
